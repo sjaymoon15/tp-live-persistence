@@ -1,17 +1,12 @@
 var express = require('express');
 var router = express.Router();
-var Hotel = require('../models/hotel');
-var Restaurant = require('../models/restaurant');
-var Activity = require('../models/activity');
-var Place = require('../models/place');
+var Hotel = require('../../models/hotel');
+var Restaurant = require('../../models/restaurant');
+var Activity = require('../../models/activity');
+var Place = require('../../models/place');
 var Promise = require('bluebird');
 
-var api = require("./api/attractions.js");
-router.use("/api", api);
-
-
-
-router.get('/', function (req, res, next) {
+router.get('/attractions', function (req, res, next) {
 
     var findingHotels = Hotel.findAll({
         include: [Place]
@@ -31,7 +26,7 @@ router.get('/', function (req, res, next) {
             findingRestaurants
         ])
         .spread(function (hotels, activities, restaurants) {
-            res.render('index', {
+            res.json({
                 hotels: hotels,
                 activities: activities,
                 restaurants: restaurants

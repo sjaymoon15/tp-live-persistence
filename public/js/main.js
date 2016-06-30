@@ -8,12 +8,37 @@ $(function () {
         restaurant: $('#restaurant-list').children('ul'),
         activity: $('#activity-list').children('ul')
     };
+    var collections ={};
+    
+        $.ajax({
+          method: 'GET',
+          url: '/api/attractions'
+        })
+        .then(function(response){
+            
+            collections.hotel = response.hotels;
+            collections.restaurant = response.restaurants;
+            collections.activity = response.activities;
+            console.log(response.hotels);
+            return collections;
+        })
+        .then(function(collections){
+            fillInOptions(collections.hotel, $('#hotel-choices'));
+            fillInOptions(collections.restaurant, $('#restaurant-choices'));
+            fillInOptions(collections.activity, $('#activity-choices'));
+        })
+        .catch(function(error){
+            console.log(error);
+        });
 
-    var collections = {
-        hotel: hotels,
-        restaurant: restaurants,
-        activity: activities
-    };
+    
+
+
+    // var collections = {
+    //     hotel: hotels,
+    //     restaurant: restaurants,
+    //     activity: activities
+    // };
 
     var $itinerary = $('#itinerary');
 
@@ -101,9 +126,9 @@ $(function () {
 
     });
 
-    fillInOptions(hotels, $('#hotel-choices'));
-    fillInOptions(restaurants, $('#restaurant-choices'));
-    fillInOptions(activities, $('#activity-choices'));
+    // fillInOptions(hotels, $('#hotel-choices'));
+    // fillInOptions(restaurants, $('#restaurant-choices'));
+    // fillInOptions(activities, $('#activity-choices'));
 
     /*
     --------------------------
@@ -221,5 +246,15 @@ $(function () {
     }
 
     // End utility functions ----
+   
 
 });
+
+
+
+
+
+
+
+
+
