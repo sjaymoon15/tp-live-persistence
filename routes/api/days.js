@@ -5,9 +5,7 @@ var days = require('../../models/day');
 router.get('/days', function (req, res, next){
   days.findAll({})
   .then (function (found){
-    if(found.length ===0){
-      days.create({number:1})
-    } else {
+    {
       res.send(found)
     }
   })
@@ -25,6 +23,27 @@ router.post('/days', function (req, res, next){
     })
 
 })
+
+
+router.put("/days", function(req, res, next){
+
+  days.findOne({
+    where: {
+      number: req.body.dayId 
+    }
+  })
+  .then(function(foundDay){
+    console.log(foundDay);
+    console.log(req.body.itemId);
+    
+    foundDay.update({
+      hotelId: req.body.itemId
+    }); 
+  })
+
+
+})
+
 
 
 module.exports = router;

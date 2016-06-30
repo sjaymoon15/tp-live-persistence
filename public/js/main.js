@@ -61,8 +61,27 @@ var currentDayNum;
         .then(function(found) {
             console.log(found)
             days.push(found)
+            return found;
+        })
+        .then(function(found){
+            found.forEach(function(item){
+                
+                $(".day-buttons").append('<button class= "btn btn-circle day-btn current-day">'+ item.number + '</button>');
+            })
         })
 
+   var jaxAddId = function(dayId, itemId){
+    $.ajax({
+            method: "PUT",
+            url: '/api/days',
+            dataType: "json",
+            data:{
+                dayId: dayId,
+                itemId: itemId
+            }
+        })//
+
+   }
 
 
     var $itinerary = $('#itinerary');
@@ -86,7 +105,12 @@ var currentDayNum;
         var $this = $(this);
         var $select = $this.siblings('select');
         var sectionName = $select.attr('data-type');
+        console.log(sectionName);
         var itemId = parseInt($select.val(), 10);
+        console.log(itemId);
+        console.log(currentDayNum);
+        jaxAddId(itemId, currentDayNum);
+
         var $list = $listGroups[sectionName];
         var collection = collections[sectionName];
         var item = findInCollection(collection, itemId);
@@ -95,6 +119,7 @@ var currentDayNum;
 
         $list.append(create$item(item));
 
+         
         days[currentDayNum - 1].push({
             item: item,
             marker: marker,
@@ -123,7 +148,7 @@ var currentDayNum;
 
 
     $addDayButton.on('click', function() {
-        var newDayNum = days.length + 1;
+        var newDayNum = days.length ;
              jaxAddDay(newDayNum)
         var $newDayButton = createDayButton(newDayNum);
         $addDayButton.before($newDayButton);
