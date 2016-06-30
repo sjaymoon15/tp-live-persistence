@@ -15,7 +15,7 @@ app.engine('html', swig.renderFile);
 // logging and body-parsing
 app.use(morgan('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // statically serve front-end dependencies
 app.use('/bootstrap', express.static(__dirname + '/node_modules/bootstrap/dist'));

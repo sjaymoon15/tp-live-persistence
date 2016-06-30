@@ -7,9 +7,8 @@ var Place = require('../models/place');
 var Promise = require('bluebird');
 
 var api = require("./api/attractions.js");
-router.use("/api", api);
-
-
+var apiday = require("./api/days.js")
+router.use("/api", api, apiday);
 
 router.get('/', function (req, res, next) {
 
@@ -40,5 +39,7 @@ router.get('/', function (req, res, next) {
         .catch(next);
 
 });
+
+
 
 module.exports = router;

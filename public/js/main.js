@@ -1,4 +1,4 @@
-$(function () {
+$(function() {
 
     var map = initializeMap();
     var $addItemButton = $('#options-panel').find('button');
@@ -8,50 +8,72 @@ $(function () {
         restaurant: $('#restaurant-list').children('ul'),
         activity: $('#activity-list').children('ul')
     };
-    var collections ={};
-    
-        $.ajax({
-          method: 'GET',
-          url: '/api/attractions'
+
+
+    var collections = {};
+
+    $.ajax({
+            method: 'GET',
+            url: '/api/attractions'
         })
-        .then(function(response){
-            
+        .then(function(response) {
             collections.hotel = response.hotels;
             collections.restaurant = response.restaurants;
             collections.activity = response.activities;
-            console.log(response.hotels);
             return collections;
         })
-        .then(function(collections){
+        .then(function(collections) {
             fillInOptions(collections.hotel, $('#hotel-choices'));
             fillInOptions(collections.restaurant, $('#restaurant-choices'));
             fillInOptions(collections.activity, $('#activity-choices'));
         })
-        .catch(function(error){
+        .fail(function(error) {
             console.log(error);
         });
 
-    
+var currentDayNum;
+   var jaxAddDay = function (input){
+        $.ajax({
+                method: 'POST',
+                url: '/api/days',
+                dataType:'json',
+                data: {answer:input}
+            })
+        .then(function(createdDay){
+            days.push(createdDay)
+            currentDayNum = days.length
+            console.log("jaxAddDay" , days.length)
+            return createdDay
+        })
+        .then (function (){
+            switchDay(days.length)
+        })
 
 
-    // var collections = {
-    //     hotel: hotels,
-    //     restaurant: restaurants,
-    //     activity: activities
-    // };
+    };
+
+    var days = []
+
+    $.ajax({
+            method: 'GET',
+            url: '/api/days'
+        })
+        .then(function(found) {
+            console.log(found)
+            days.push(found)
+        })
+
+
 
     var $itinerary = $('#itinerary');
-
     var $addDayButton = $('#day-add');
     var $dayTitle = $('#day-title').children('span');
     var $removeDayButton = $('#day-title').children('button');
     var $dayButtonList = $('.day-buttons');
 
-    var days = [
-        []
-    ];
 
-    var currentDayNum = 1;
+
+
 
     /*
     --------------------------
@@ -59,7 +81,7 @@ $(function () {
     --------------------------
      */
 
-    $addItemButton.on('click', function () {
+    $addItemButton.on('click', function() {
 
         var $this = $(this);
         var $select = $this.siblings('select');
@@ -83,7 +105,7 @@ $(function () {
 
     });
 
-    $itinerary.on('click', 'button.remove', function () {
+    $itinerary.on('click', 'button.remove', function() {
 
         var $this = $(this);
         var $item = $this.parent();
@@ -99,20 +121,22 @@ $(function () {
 
     });
 
-    $addDayButton.on('click', function () {
+
+    $addDayButton.on('click', function() {
         var newDayNum = days.length + 1;
+             jaxAddDay(newDayNum)
         var $newDayButton = createDayButton(newDayNum);
-        days.push([]);
         $addDayButton.before($newDayButton);
         switchDay(newDayNum);
-    });
 
-    $dayButtonList.on('click', '.day-btn', function () {
+            });
+
+    $dayButtonList.on('click', '.day-btn', function() {
         var dayNumberFromButton = parseInt($(this).text(), 10);
         switchDay(dayNumberFromButton);
     });
 
-    $removeDayButton.on('click', function () {
+    $removeDayButton.on('click', function() {
 
         wipeDay();
         days.splice(currentDayNum - 1, 1);
@@ -157,13 +181,14 @@ $(function () {
     // End create element functions ----
 
     function fillInOptions(collection, $selectElement) {
-        collection.forEach(function (item) {
+        collection.forEach(function(item) {
             $selectElement.append('<option value="' + item.id + '">' + item.name + '</option>');
         });
     }
 
     function switchDay(dayNum) {
-        wipeDay();
+        console.log("daynum", dayNum)
+        //wipeDay();
         currentDayNum = dayNum;
         renderDay();
         $dayTitle.text('Day ' + dayNum);
@@ -178,8 +203,9 @@ $(function () {
             .children('button')
             .eq(currentDayNum - 1)
             .addClass('current-day');
+console.log("currentdayNum", currentDayNum, "days array", days, "currentDay = ", currentDay)
 
-        currentDay.forEach(function (attraction) {
+            currentDay.forEach(function(attraction) {
             var $listToAddTo = $listGroups[attraction.type];
             $listToAddTo.append(create$item(attraction.item));
             attraction.marker.setMap(map);
@@ -187,21 +213,21 @@ $(function () {
 
     }
 
-    function wipeDay() {
+    // function wipeDay() {
 
-        $dayButtonList.children('button').removeClass('current-day');
+    //     $dayButtonList.children('button').removeClass('current-day');
 
-        Object.keys($listGroups).forEach(function (key) {
-           $listGroups[key].empty();
-        });
+    //     Object.keys($listGroups).forEach(function(key) {
+    //         $listGroups[key].empty();
+    //     });
 
-        if (days[currentDayNum - 1]) {
-            days[currentDayNum - 1].forEach(function (attraction) {
-                attraction.marker.setMap(null);
-            });
-        }
+    //     if (days[currentDayNum - 1]) {
+    //         days[currentDayNum - 1].forEach(function(attraction) {
+    //             attraction.marker.setMap(null);
+    //         });
+    //     }
 
-    }
+    // }
 
     function reRenderDayButtons() {
 
@@ -220,7 +246,7 @@ $(function () {
         var currentDay = days[currentDayNum - 1];
         var bounds = new google.maps.LatLngBounds();
 
-        currentDay.forEach(function (attraction) {
+        currentDay.forEach(function(attraction) {
             bounds.extend(attraction.marker.position);
         });
 
@@ -231,7 +257,7 @@ $(function () {
     // Utility functions ------
 
     function findInCollection(collection, id) {
-        return collection.filter(function (item) {
+        return collection.filter(function(item) {
             return item.id === id;
         })[0];
     }
@@ -246,15 +272,6 @@ $(function () {
     }
 
     // End utility functions ----
-   
+
 
 });
-
-
-
-
-
-
-
-
-
